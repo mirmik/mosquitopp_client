@@ -22,8 +22,8 @@ licant.install.install_library(
     tgt="install",
     uninstall="uninstall",
     libtgt=["libmosquitto_client.so", "libmosquitto_client.a"],
-    hroot="igris",
-    headers="igris")
+    hroot="mosquitto_client",
+    headers=".")
 
 licant.fileset("all", targets=["libmosquitto_client.so", "libmosquitto_client.a"])
 
