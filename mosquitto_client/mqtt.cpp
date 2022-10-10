@@ -1,9 +1,4 @@
-#include "mqtt.h"
-#define PUBLISH_TOPIC "EXAMPLE_TOPIC"
-
-#ifdef DEBUG
-#include <iostream>
-#endif
+#include <mosquitto_client/mqtt.h>
 
 mqtt_client::mqtt_client(const char *id, const char *host, int port)
     : mosquittopp(id)
@@ -12,23 +7,10 @@ mqtt_client::mqtt_client(const char *id, const char *host, int port)
     connect(host, port, keepalive);
 }
 
-mqtt_client::~mqtt_client() {}
-
-void mqtt_client::on_connect(int rc)
-{
-    if (!rc)
-    {
-#ifdef DEBUG
-        std::cout << "Connected - code " << rc << std::endl;
-#endif
-    }
-}
+void mqtt_client::on_connect(int rc) {}
 
 void mqtt_client::on_subscribe(int mid, int qos_count, const int *granted_qos)
 {
-#ifdef DEBUG
-    std::cout << "Subscription succeeded." << std::endl;
-#endif
 }
 
 int mqtt_client::publish(const std::string_view &topic,
@@ -45,6 +27,19 @@ int mqtt_client::publish(const std::string_view &topic,
 
 void mqtt_client::on_message(const struct mosquitto_message *message)
 {
-    int payload_size = MAX_PAYLOAD + 1;
-    char buf[payload_size];
+    std::string topic = message->topic;
+    auto payload_size = message->payloadlen;
+    std::string payload = std::string((char *)message->payload, payload_size);
+
+    if (_subscriptions.find(topic) != _subscriptions.end())
+    {
+        _subscriptions[topic](payload);
+    }
+}
+
+void mqtt_client::subscribe(const std::string_view &topic,
+                            std::function<void(const std::string &)> callback)
+{
+    _subscriptions[std::string(topic)] += callback;
+    mosqpp::mosquittopp::subscribe(NULL, (const char *)topic.data());
 }

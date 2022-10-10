@@ -7,12 +7,13 @@ import os
 import sys
 
 licant.cxx_static_and_shared(
-    sources = ["mqtt.cpp"],
+    sources=["mosquitto_client/mqtt.cpp"],
     include_paths=["."],
     name="libraries",
     static_lib="libmosquitto_client.a",
     shared_lib="libmosquitto_client.so",
-    cxx_flags = "-fPIC",
+    libs=["mosquittopp"],
+    cxx_flags="-fPIC",
     cxxstd="c++17",
     ccstd="c11",
     optimize="-O3"
@@ -23,7 +24,7 @@ licant.install.install_library(
     uninstall="uninstall",
     libtgt=["libmosquitto_client.so", "libmosquitto_client.a"],
     hroot="mosquitto_client",
-    headers=".")
+    headers="mosquitto_client")
 
 licant.fileset("all", targets=["libmosquitto_client.so", "libmosquitto_client.a"])
 
